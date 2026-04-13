@@ -3,17 +3,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import TopNav from '../components/TopNav'
 import { IA } from '../data/ia'
 
-const FEATURED = [
-  { id: 'patient', highlight: "Find a Service", path: '/patient/find-service' },
-  { id: 'visiting', highlight: "Visiting Hours & Info", path: '/visiting' },
-  { id: 'concerned', highlight: "Make a Complaint", path: '/concerned/complaint' },
-  { id: 'work', highlight: "Job Vacancies", path: '/work/vacancies' },
+const POPULAR_SEARCHES = [
+  'Parking', 'Visiting Times', 'Cardiology', 'Maternity', 'A&E Waiting Times',
+  'Jobs', 'Pharmacy', 'Physiotherapy'
 ]
 
-const POPULAR_SEARCHES = [
-  'Outpatients', 'Parking', 'Visiting hours', 'Maternity', 'A&E',
-  'Appointments', 'Pharmacy', 'Physiotherapy'
-]
+// Featured top-level sections — shown as larger cards above the main grid
+const FEATURED_IDS = ['patient', 'visiting', 'work', 'concerned']
 
 export default function HomePage() {
   const [query, setQuery] = useState('')
@@ -27,6 +23,8 @@ export default function HomePage() {
   }
 
   const topLevel = IA.filter(n => !n.isSearch)
+  const featured = topLevel.filter(n => FEATURED_IDS.includes(n.id))
+  const rest = topLevel.filter(n => !FEATURED_IDS.includes(n.id))
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -36,14 +34,16 @@ export default function HomePage() {
       <div className="hero">
         <div className="hero-inner">
           <h1 className="hero-title">Bristol NHS Group</h1>
-          <p className="hero-subtitle">University Hospitals Bristol and Weston NHS Foundation Trust</p>
+          <p className="hero-subtitle">
+            University Hospitals Bristol and Weston NHS Foundation Trust &amp; North Bristol Trust
+          </p>
           <form onSubmit={handleSearch} className="search-box-large">
             <input
               type="search"
               placeholder="Search for a service, department, or condition..."
               value={query}
               onChange={e => setQuery(e.target.value)}
-              aria-label="Search"
+              aria-label="Search the Bristol NHS Group website"
               autoComplete="off"
             />
             <button type="submit">Search</button>
@@ -54,7 +54,7 @@ export default function HomePage() {
               <button
                 key={s}
                 className="popular-tag"
-                onClick={() => navigate(`/search?q=${encodeURIComponent(s)}`)}
+                onClick={() => navigate(`/#/search?q=${encodeURIComponent(s)}`)}
               >
                 {s}
               </button>
@@ -64,25 +64,28 @@ export default function HomePage() {
       </div>
 
       <main style={{ flex: 1 }}>
-        {/* Featured quick links */}
         <div className="page-content">
+
+          {/* Featured sections — 2 col grid, larger cards */}
+          <h2 className="section-heading" style={{ marginTop: 0 }}>How can we help?</h2>
           <div className="featured-grid">
-            {FEATURED.map(f => {
-              const node = topLevel.find(n => n.id === f.id)
-              return (
-                <Link key={f.id} to={f.path} className="featured-card">
-                  <div className="featured-card-label">{f.highlight}</div>
-                  <div className="featured-card-section">{node?.title}</div>
-                </Link>
-              )
-            })}
+            {featured.map(item => (
+              <Link key={item.id} to={`/${item.id}`} className="featured-card">
+                <div className="featured-card-label">Explore section</div>
+                <div className="featured-card-section">{item.title}</div>
+                <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, lineHeight: 1.5, marginTop: 8 }}>
+                  {item.description}
+                </p>
+                <span style={{ position: 'absolute', bottom: 18, right: 18, color: 'rgba(255,255,255,0.6)', fontSize: 20 }}>›</span>
+              </Link>
+            ))}
           </div>
 
-          {/* Main nav cards */}
-          <h2 className="section-heading">How can we help?</h2>
+          {/* Remaining Level 1 sections */}
+          <h2 className="section-heading">More from Bristol NHS Group</h2>
           <div className="cards-grid">
-            {topLevel.map(item => (
-              <Link key={item.id} to={`/${item.id}`} className="nav-card">
+            {rest.map(item => (
+              <Link key={item.id} to={`/${item.id}`} className="nav-card" aria-label={item.title}>
                 <div className="nav-card-title">{item.title}</div>
                 <p className="nav-card-desc">{item.description}</p>
                 <span className="nav-card-arrow">›</span>
@@ -97,13 +100,15 @@ export default function HomePage() {
             <h2 className="strip-heading">Our Hospitals</h2>
             <div className="hospitals-grid">
               {[
-                { name: 'Bristol Royal Infirmary', short: 'BRI', id: 'patient/hospital-info' },
-                { name: 'Southmead Hospital', short: 'Southmead', id: 'patient/hospital-info' },
-                { name: 'Weston General Hospital', short: 'Weston', id: 'patient/hospital-info' },
-                { name: "Bristol Children's Hospital", short: 'BCH', id: 'young-people' },
+                { name: 'Bristol Royal Infirmary', abbr: 'BRI', desc: 'City centre specialist hospital', path: '/patient/hospital-info/bri' },
+                { name: 'Southmead Hospital', abbr: 'NBT', desc: 'North Bristol major hospital', path: '/patient/hospital-info/nbt' },
+                { name: 'Weston General Hospital', abbr: 'Weston', desc: 'North Somerset district general', path: '/patient/hospital-info/weston' },
+                { name: "Bristol Children's Hospital", abbr: 'BCH', desc: 'Specialist paediatric services', path: '/young-people' },
               ].map(h => (
-                <Link key={h.short} to={`/${h.id}`} className="hospital-card">
+                <Link key={h.abbr} to={h.path} className="hospital-card">
+                  <div className="hospital-card-abbr">{h.abbr}</div>
                   <div className="hospital-card-name">{h.name}</div>
+                  <div className="hospital-card-desc">{h.desc}</div>
                   <div className="hospital-card-link">Visit page ›</div>
                 </Link>
               ))}

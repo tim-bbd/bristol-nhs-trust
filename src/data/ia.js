@@ -15,7 +15,17 @@ export const IA = [
           { id: 'staff-directory', title: 'Staff & Consultant Directory', description: 'Find information about consultants and staff members including their specialties and locations' },
           { id: 'search-az', title: 'Search A-Z', description: 'Browse all services and departments alphabetically' },
           { id: 'by-specialty', title: 'By Specialty', description: 'Find the right department by browsing our list of medical specialties' },
-          { id: 'health-information', title: 'Health Information & Symptoms', description: 'Access trusted health information and symptom guidance from NHS England', handoff: true },
+          {
+            id: 'health-information',
+            title: 'Health Information & Symptoms',
+            description: 'For health information, symptom guidance, and conditions advice, NHS England provides comprehensive authoritative resources',
+            handoff: true,
+            handoffCards: [
+              { title: 'NHS 111 Online — Symptom Checker', description: 'Answer questions about your symptoms to get advice on what to do next', url: 'https://111.nhs.uk' },
+              { title: 'Conditions A–Z — NHS England', description: 'Find information about hundreds of health conditions, treatments, and medications', url: 'https://www.nhs.uk/conditions' },
+              { title: 'When to Get Help', description: 'Guidance on when to call 999, 111, visit A&E, or see your GP', url: 'https://www.nhs.uk/nhs-services/urgent-and-emergency-care-services' },
+            ],
+          },
         ],
       },
       {
@@ -70,7 +80,16 @@ export const IA = [
         children: [
           { id: 'need-to-know', title: 'What You Need to Know', description: 'An overview of visiting rules, procedures, and what to expect on arrival' },
           { id: 'find-department', title: 'Find a Department', description: 'Locate the ward or department you need to visit across our hospital sites' },
-          { id: 'by-hospital', title: 'Visiting by Hospital', description: 'Get site-specific visiting information for BRI, Southmead, and Weston' },
+          {
+            id: 'by-hospital',
+            title: 'Visiting by Hospital',
+            description: 'Get site-specific visiting information for each of our hospitals',
+            children: [
+              { id: 'bri-visiting', title: 'BRI Visiting Information', description: 'Visiting times, ward locations, and visitor guidance for Bristol Royal Infirmary' },
+              { id: 'southmead-visiting', title: 'Southmead Visiting Information', description: 'Visiting times, ward locations, and visitor guidance for Southmead Hospital' },
+              { id: 'weston-visiting', title: 'Weston Visiting Information', description: 'Visiting times, ward locations, and visitor guidance for Weston General Hospital' },
+            ],
+          },
         ],
       },
       {
@@ -417,7 +436,17 @@ export const IA = [
         description: 'Latest news, press information, and media resources',
         icon: 'NotificationOutlined',
         children: [
-          { id: 'latest-news', title: 'Latest News', description: 'News and announcements from across Bristol NHS Group' },
+          {
+            id: 'latest-news',
+            title: 'Latest News',
+            description: 'News and announcements from across Bristol NHS Group',
+            children: [
+              { id: 'trust-news', title: 'Trust-Wide News', description: 'News and announcements affecting all Bristol NHS Group hospitals and services' },
+              { id: 'bri-news', title: 'BRI News', description: 'Latest news and updates from Bristol Royal Infirmary' },
+              { id: 'southmead-news', title: 'Southmead News', description: 'Latest news and updates from Southmead Hospital' },
+              { id: 'weston-news', title: 'Weston News', description: 'Latest news and updates from Weston General Hospital' },
+            ],
+          },
           { id: 'press', title: 'Press Office', description: 'Contact our media team and access press releases and resources' },
           { id: 'social', title: 'Social Media', description: 'Follow Bristol NHS Group on social media for updates and stories' },
           { id: 'campaigns', title: 'Campaigns', description: 'Current health campaigns and public health initiatives from Bristol NHS Group' },

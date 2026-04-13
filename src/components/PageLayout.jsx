@@ -1,16 +1,11 @@
-import { useState } from 'react'
 import TopNav from './TopNav'
 import BreadcrumbNav from './BreadcrumbNav'
-import HospitalFilter from './HospitalFilter'
 
-export default function PageLayout({ children, pathSegments = [], showHospitalFilter = false, hospital, onHospitalChange }) {
+export default function PageLayout({ children, pathSegments = [] }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <TopNav />
       <BreadcrumbNav pathSegments={pathSegments} />
-      {showHospitalFilter && (
-        <HospitalFilter active={hospital} onChange={onHospitalChange} />
-      )}
       <main style={{ flex: 1 }}>
         {children}
       </main>

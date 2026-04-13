@@ -1,14 +1,58 @@
-import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import PageLayout from '../components/PageLayout'
 import { findNode } from '../data/ia'
 
+// Icon map — Ant Design icon names → simple SVG/emoji placeholder
+const ICON_MAP = {
+  UserOutlined: '👤',
+  TeamOutlined: '👥',
+  ExclamationCircleOutlined: '⚠️',
+  CrownOutlined: '👑',
+  ExperimentOutlined: '🔬',
+  SolutionOutlined: '💼',
+  SmileOutlined: '😊',
+  InfoCircleOutlined: 'ℹ️',
+  PhoneOutlined: '📞',
+  SearchOutlined: '🔍',
+  CalendarOutlined: '📅',
+  HomeOutlined: '🏠',
+  BankOutlined: '🏥',
+  CompassOutlined: '🧭',
+  CarOutlined: '🚗',
+  CoffeeOutlined: '☕',
+  HeartOutlined: '❤️',
+  MedicineBoxOutlined: '💊',
+  MessageOutlined: '✉️',
+  SafetyOutlined: '🛡️',
+  StarOutlined: '⭐',
+  FileProtectOutlined: '📋',
+  FileSearchOutlined: '🔎',
+  BulbOutlined: '💡',
+  ReadOutlined: '📚',
+  BookOutlined: '📖',
+  UsergroupAddOutlined: '👨‍👩‍👧',
+  NotificationOutlined: '📢',
+  FileTextOutlined: '📄',
+  GlobalOutlined: '🌍',
+  ApartmentOutlined: '🤝',
+  MailOutlined: '✉️',
+  CustomerServiceOutlined: '🎧',
+  CameraOutlined: '📷',
+  AlertOutlined: '🚨',
+}
+
+function IconPlaceholder({ icon, size = 52 }) {
+  const emoji = ICON_MAP[icon] || '📄'
+  return (
+    <div className="nav-card-icon" style={{ width: size, height: size, fontSize: size * 0.45 }}>
+      {emoji}
+    </div>
+  )
+}
+
 export default function NavPage() {
   const params = useParams()
-  // Reconstruct path segments from route params
-  // Route is /:l1, /:l1/:l2, /:l1/:l2/:l3
   const segments = [params.l1, params.l2, params.l3].filter(Boolean)
-  const [hospital, setHospital] = useState('All')
 
   const node = findNode(segments)
 
@@ -26,26 +70,52 @@ export default function NavPage() {
 
   // Handoff page — links to NHS England
   if (node.handoff) {
+    const backPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}` : '/'
     return (
       <PageLayout pathSegments={segments}>
         <div className="page-content">
-          <h1 className="page-heading">{node.title}</h1>
-          <p className="page-subheading">{node.description}</p>
-          <div className="handoff-card">
-            <div className="handoff-icon">↗</div>
-            <div>
-              <div className="handoff-title">This page is provided by NHS England</div>
-              <div className="handoff-desc">
-                This content is maintained by NHS England and will open on their website.
-                You will be leaving the Bristol NHS Group website.
-              </div>
-              <button className="handoff-btn">Continue to NHS England ›</button>
-            </div>
+          <span className="handoff-source-badge">NHS England ↗</span>
+          <h1 className="page-heading" style={{ marginTop: 12 }}>{node.title}</h1>
+          <p className="page-subheading" style={{ maxWidth: 680 }}>{node.description}</p>
+
+          <div className="handoff-info-box">
+            <span className="handoff-info-icon">ℹ️</span>
+            <span>
+              This content is provided and maintained by <strong>NHS England</strong>.
+              Clicking the links below will open the NHS England website in a new tab.
+            </span>
           </div>
-          <div style={{ marginTop: 32 }}>
-            <Link to={`/${segments.slice(0, -1).join('/')}`} style={{ color: '#005EB8', fontSize: 14 }}>
-              ← Back
+
+          {node.handoffCards && (
+            <div className="cards-grid" style={{ marginTop: 24 }}>
+              {node.handoffCards.map((card, i) => (
+                <a
+                  key={i}
+                  href={card.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="nav-card handoff-external-card"
+                >
+                  <div className="nav-card-icon" style={{ width: 52, height: 52, fontSize: 22, background: '#d8e8f5', color: '#005EB8' }}>
+                    ↗
+                  </div>
+                  <div className="nav-card-title">{card.title}</div>
+                  <p className="nav-card-desc">{card.description}</p>
+                  <span className="nav-card-arrow" style={{ fontSize: 11, color: '#768692' }}>Opens on NHS England website</span>
+                </a>
+              ))}
+            </div>
+          )}
+
+          <div className="handoff-local-note">
+            <strong>Already have a referral to Bristol NHS Group?</strong>{' '}
+            <Link to="/patient/find-service" style={{ color: '#005EB8' }}>
+              Use our A–Z or By Specialty to find the right department →
             </Link>
+          </div>
+
+          <div style={{ marginTop: 32 }}>
+            <Link to={backPath} className="back-link">← Back</Link>
           </div>
         </div>
       </PageLayout>
@@ -54,23 +124,12 @@ export default function NavPage() {
 
   // Has children — show as card grid
   if (node.children && node.children.length > 0) {
-    const showFilter = segments.length === 1 // Only show at level 1
     return (
-      <PageLayout
-        pathSegments={segments}
-        showHospitalFilter={showFilter}
-        hospital={hospital}
-        onHospitalChange={setHospital}
-      >
+      <PageLayout pathSegments={segments}>
         <div className="page-content">
           <h1 className="page-heading">{node.title}</h1>
           {node.description && (
             <p className="page-subheading">{node.description}</p>
-          )}
-          {showFilter && hospital !== 'All' && (
-            <div className="filter-notice">
-              Showing information for: <strong>{hospital}</strong>
-            </div>
           )}
           <div className="cards-grid">
             {node.children.map(child => {
@@ -79,8 +138,9 @@ export default function NavPage() {
               const hasChildren = child.children && child.children.length > 0
 
               return (
-                <Link key={child.id} to={childPath} className="nav-card">
+                <Link key={child.id} to={childPath} className="nav-card" aria-label={child.title}>
                   {isHandoff && <span className="nav-card-badge">NHS England</span>}
+                  <IconPlaceholder icon={child.icon || node.icon} />
                   <div className="nav-card-title">{child.title}</div>
                   <p className="nav-card-desc">{child.description}</p>
                   <span className="nav-card-arrow">{isHandoff ? '↗' : '›'}</span>
@@ -93,25 +153,36 @@ export default function NavPage() {
     )
   }
 
-  // Leaf page — no children
+  // Leaf page — no children, end of navigation
+  const backPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}` : '/'
   return (
     <PageLayout pathSegments={segments}>
       <div className="page-content">
-        <div className="leaf-content">
+        <div style={{ maxWidth: 760 }}>
+          <Link to={backPath} className="back-link" style={{ display: 'inline-block', marginBottom: 24 }}>← Back</Link>
           <h1 className="page-heading">{node.title}</h1>
           <p className="page-subheading">{node.description}</p>
 
           <div className="leaf-placeholder">
             <div className="leaf-placeholder-icon">📄</div>
             <div className="leaf-placeholder-text">
-              Content for this page will be added here. This is a wireframe prototype.
+              Content for this page will be added here. This is a wireframe prototype —
+              this area would contain the full page content in the final website.
             </div>
           </div>
 
           <div className="leaf-actions">
-            <button className="leaf-action-btn primary">Contact Us</button>
-            <button className="leaf-action-btn">Download Information</button>
-            <button className="leaf-action-btn">Print this page</button>
+            <button className="leaf-action-btn primary">Contact Us About This</button>
+            <button className="leaf-action-btn">Download Information (PDF)</button>
+            <button className="leaf-action-btn">Print This Page</button>
+          </div>
+
+          <div className="leaf-related">
+            <h2 className="section-heading">Was this helpful?</h2>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button className="leaf-action-btn">👍 Yes</button>
+              <button className="leaf-action-btn">👎 No</button>
+            </div>
           </div>
         </div>
       </div>
